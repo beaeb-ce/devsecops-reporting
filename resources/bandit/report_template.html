@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bandit Security Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        h2, h3 {
+            color: #555;
+        }
+
+        .report-img {
+            width: 48%;
+            height: auto;
+        }
+
+        .img-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        th, td {
+            border: none;
+            padding: 8px;
+            text-align: left;
+            background: transparent;
+        }
+
+        .low {
+            background: linear-gradient(to right, #FFEB3B, #FFC107);
+        }
+
+        .medium {
+            background: linear-gradient(to right, #FF9800, #FF5722);
+        }
+
+        .high {
+            background: linear-gradient(to right, #F44336, #B71C1C);
+        }
+
+        .total-row {
+            background-color: rgba(0, 120, 255, 0.1);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Security Report</h1>
+
+    <h2>1. Bandit</h2>
+    <p>
+        Bandit is a comprehensive security analysis tool for Python applications.
+        It's designed to find common security issues in Python code, such as insecure function calls or hardcoded passwords.
+        Bandit works by analyzing the Abstract Syntax Tree (AST) of the Python code to find patterns that could indicate potential security issues.
+    </p>
+
+    <h2>2. Summary</h2>
+    <!-- First row of images -->
+    <img class="report-img" src="{{ severity_plot }}" alt="Severity Count">
+    <img class="report-img" src="{{ file_plot }}" alt="File Count">
+
+    <!-- Margin between the rows -->
+    <div style="margin: 30px 0;"></div>
+
+    <!-- Second row of images -->
+    <img class="report-img" src="{{ issue_type_plot }}" alt="Issue Type Count">
+    <img class="report-img" src="{{ confidence_plot }}" alt="Confidence Level Count">
+
+    <h2>3. Details</h2>
+    <p>
+        In this section, we provide detailed information about each vulnerability found by the Bandit tool.
+        This includes the file where the issue was found, the line number, a description of the issue, the severity and confidence levels, and a link to more information about how to fix it.
+    </p>
+
+    {% for severity in ['LOW', 'MEDIUM', 'HIGH'] %}
+        <h3>{{ severity }} Severity</h3>
+        <table>
+            <thead class="{{ severity|lower }}">
+                <tr>
+                    <th>File</th>
+                    <th>Line Number</th>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th>CWE</th>
+                    <th>Confidence</th>
+                    <th>More Info</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, row in data[data.issue_severity == severity].iterrows() %}
+                <tr>
+                    <td>{{ row.filename }}</td>
+                    <td>{{ row.line_number }}</td>
+                    <td><pre>{{ row.code }}</pre></td>
+                    <td>{{ row.issue_text }}</td>
+                    <td>{{ row.cwe_id }}</td>
+                    <td>{{ row.issue_confidence }}</td>
+                    <td><a href="{{ row.more_info }}">Link</a></td>
+                </tr>
+                {% endfor %}
+                <!-- Total count for this severity -->
+                <tr style="font-weight: bold;" class="total-row">
+                    <td colspan="6">Total {{ severity }} Severity Issues</td>
+                    <td>{{ data[data.issue_severity == severity].shape[0] }}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Trufflehog Security Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5; 
+        }
+
+        h1 {
+            color: #444;
+            font-size: 24px; 
+        }
+
+        h2 {
+            color: #555;
+            font-size: 20px; 
+        }
+
+        h3 {
+            color: #666;
+            font-size: 18px; 
+        }
+
+        p {
+            color: #777;
+            font-size: 16px; 
+        }
+
+        .report-img {
+            width: 40%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        thead {
+            background-image: linear-gradient(to right, #0072ff, #00c6ff);
+        }
+
+        th {
+            background: transparent;
+            color: white !important;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th, td {
+            border: none;
+            padding: 8px;
+            text-align: left;
+            color: #777;
+            font-size: 16px; 
+        }
+
+        .total-row {
+            background-color: rgba(0, 120, 255, 0.1);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Security Report</h1>
+
+    <h2>1. Trufflehog</h2>
+    <p>
+        Trufflehog is a tool designed to search through git repositories for secrets, digging deep into commit history and branches. It looks for high entropy strings, which are likely to contain secrets.
+    </p>
+
+    <h2>2. Summary</h2>
+    <img class="report-img" src="{{ file_plot }}" alt="File Count">
+
+    <h2>3. Details</h2>
+    <p>
+        In this section, we provide detailed information about each potential secret found by Trufflehog.
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>File</th>
+                <th>Commit</th>
+                <th>Date</th>
+                <th>Reason</th>
+                <th>Strings Found</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for index, row in data.iterrows() %}
+            <tr>
+                <td>{{ row.path }}</td>
+                <td>{{ row.commit }}</td>
+                <td>{{ row.date }}</td>
+                <td>{{ row.reason }}</td>
+                <td>{{ row.stringsFound }}</td>
+            </tr>
+            {% endfor %}
+            <tr style="font-weight: bold;" class="total-row">
+                <td colspan="4">Total Potential Secrets Found</td>
+                <td>{{ data.shape[0] }}</td>
+            </tr>
+        </tbody>
+    </table>
+    
+</body>
+</html>
