@@ -26,7 +26,16 @@ def get_image_as_data_url(image_path):
     return f"data:image/png;base64,{encoded_image}"
 
 def parse_safety_json(data):
-    return pd.DataFrame(data['vulnerabilities'])
+    columns = [
+        "package_name",
+        "affected_versions",
+        "installed_version",
+        "vulnerability_description",
+        "vulnerability_id",
+        "extra_1",
+        "extra_2"
+    ]
+    return pd.DataFrame(data, columns=columns)
 
 def load_and_parse(file_path):
     with open(file_path) as f:
@@ -34,18 +43,19 @@ def load_and_parse(file_path):
     df = parse_safety_json(data)
     return df, data
 
-def generate_packages_summary_plot(data):
-    total_packages = len(data['scanned_packages'])
-    affected_packages = len(data['affected_packages'])
-    safe_packages = total_packages - affected_packages
-    labels = ['Affected Packages', 'Safe Packages']
-    sizes = [affected_packages, safe_packages]
-    plt.figure(figsize=(12, 8))
-    colors = ['#f72d2a', '#66BB6A']
-    plt.pie(sizes, labels=labels, autopct='%1.0f%%', labeldistance=1.1, textprops={'fontsize': 18}, startangle=140, colors=colors)
-    plt.title('Summary of Packages', fontsize=20)
+def generate_packages_summary_plot(df):
+    affected_packages = df['package_name'].nunique()
+    total_packages = affected_packages  # Suponemos que solo hay datos de paquetes afectados
+    safe_packages = 0  # Ya no tenemos esta info
+
+    labels = ['Affected Packages']
+    sizes = [affected_packages]
+    colors = ['#f72d2a']
+
+    plt.figure(figsize=(8, 6))
+    plt.pie(sizes, labels=labels, autopct='%1.0f%%', textprops={'fontsize': 16}, startangle=140, colors=colors)
+    plt.title('Summary of Packages (Only Affected Shown)', fontsize=18)
     plt.tight_layout()
-    plt.gca().xaxis.set_major_formatter(plt.NullFormatter())
     plt.savefig(os.path.join(images_path, 'packages_summary_plot.png'), dpi=300)
 
 def generate_vulnerabilities_per_package_plot(df):
@@ -66,7 +76,7 @@ def generate_vulnerabilities_per_package_plot(df):
 
 def generate_all_plots(file_path):
     df, data = load_and_parse(file_path)
-    generate_packages_summary_plot(data)
+    generate_packages_summary_plot(df)
     generate_vulnerabilities_per_package_plot(df)
     return df, data
 
@@ -82,7 +92,7 @@ template = env.get_template(template_path)
 
 print("Rendering template...")
 html_content = template.render(
-    data=df_safety,
+    data=df_safety.to_dict(orient='records'),
     total_packages_pie=packages_summary_data_url,
     vulnerabilities_per_package_pie=vulnerabilities_per_package_data_url
 )

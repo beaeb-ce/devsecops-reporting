@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,7 +14,7 @@
         }
 
         .gradient {
-        background: linear-gradient(to right, #66bba2, #66BB6A);
+            background: linear-gradient(to right, #66bba2, #66BB6A);
         }
 
         .total-row {
@@ -32,9 +31,14 @@
         }
 
         .report-img {
-            width: 45%;
-            height: auto;
+            width: 600px;
+            height: 500px;
+            object-fit: contain;
+            margin: 10px;
+            border: 1px solid #ccc;
+            background: white;
         }
+
 
         .img-container {
             display: flex;
@@ -93,7 +97,7 @@
     <h2>3. Details</h2>
     <p>
         In this section, we provide detailed information about each vulnerability found by the Safety tool.
-        This includes the package name, the installed version, a description of the vulnerability, and a link to more information about how to fix it.
+        This includes the package name, the installed version, and a description of the vulnerability.
     </p>
     
     <table>
@@ -102,23 +106,21 @@
                 <th>Package Name</th>
                 <th>Installed Version</th>
                 <th>Vulnerability</th>
-                <th>More Info</th>
             </tr>
         </thead>
         <tbody>
-            {% for index, row in data.iterrows() %}
+            {% for row in data %}
             <tr>
                 <td>{{ row.package_name }}</td>
-                <td>{{ row.analyzed_version }}</td>
-                <td>{{ row.advisory }}</td>
-                <td><a href="{{ row.more_info_url }}">Link</a></td>
+                <td>{{ row.installed_version }}</td>
+                <td>{{ row.vulnerability_description }}</td>
             </tr>
             {% endfor %}
             <tr style="font-weight: bold;" class="total-row">
-                <td colspan="3">Total Vulnerabilities</td>
-                <td>{{ data.shape[0] }}</td>
+                <td colspan="2">Total Vulnerabilities</td>
+                <td>{{ data | length }}</td>
             </tr>
-        </tbody>
+        </tbody>        
     </table>
 
 </body>
